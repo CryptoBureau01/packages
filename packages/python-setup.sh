@@ -70,7 +70,6 @@ check_apt_installation() {
     echo "Failed to run apt update after 5 attempts!" >&2
 }
 
-
 # Function to handle common apt errors
 fix_apt_errors() {
     echo "Checking and fixing common apt errors..."
@@ -95,7 +94,6 @@ fix_apt_errors() {
     # Update command-not-found
     sudo update-command-not-found
 }
-
 
 # Function to install commonly used Python packages
 all_func() {
@@ -131,7 +129,6 @@ all_func() {
     done
 }
 
-
 # Function to test the installation of packages
 test_fun() {
     echo "Testing installed packages..."
@@ -166,8 +163,6 @@ test_fun() {
     echo "All packages are working correctly!"
 }
 
-
-
 # New function to check and fix errors
 error_fix() {
     for attempt in {1..5}; do
@@ -192,6 +187,9 @@ error_fix() {
     echo "Failed to fix errors after 5 attempts!" >&2
 }
 
+# Call the error_fix function
+error_fix
+
 # Update and upgrade the system at the end
 echo "Updating and upgrading the system..."
 sudo apt-get update && sudo apt-get upgrade -y
@@ -200,10 +198,3 @@ if [ $? -eq 0 ]; then
 else
     echo "Failed to update and upgrade the system!" >&2
 fi
-
-
-
-
-
-# Call the error_fix function
-error_fix
