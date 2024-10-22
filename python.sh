@@ -1,4 +1,10 @@
+#!/bin/bash
 
+# Display startup message
+echo "============================"
+echo "  Packages Manager by CryptoBureau"
+echo "  For support, please fix any errors as per instructions."
+echo "============================"
 
 
 # Function to check system type and root privileges
@@ -67,10 +73,26 @@ install_python() {
     done
 
     echo "Starting Python installation..."
-    bash ./packages/python-setup.sh
+    bash <(curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python-setup.sh)
     if [ $? -eq 0 ]; then
         echo "Python installed successfully!"
     else
         echo "Python installation failed!" >&2
     fi
 }
+
+
+
+
+# Main function to monitor all installations
+main_fun() {
+    echo "Starting package installations..."
+
+    install_python
+
+    echo "All package installations completed!"
+}
+
+
+# Call the master function first
+master_fun
