@@ -48,7 +48,7 @@ install_python() {
     # Function to update Python 3 using the provided link
     if command -v python3 &> /dev/null; then
         echo "Python 3 is installed. Updating Python using your custom script..."
-        bash <(curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python3-setup.sh)
+        curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python3-setup.sh -o python3-setup.sh && chmod +x python3-setup.sh && sudo ./python3-setup.sh
         if [ $? -eq 0 ]; then
             echo "Python 3 updated successfully!"
         else
