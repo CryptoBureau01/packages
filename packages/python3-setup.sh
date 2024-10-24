@@ -98,7 +98,16 @@ fix_apt_errors() {
 # Function to install commonly used Python packages
 all_func() {
     echo "Installing commonly used Python packages..."
-    
+
+    # Check if inside a virtual environment
+    if [ -z "$VIRTUAL_ENV" ]; then
+        echo "Please activate a virtual environment before running this script."
+        return 1  # Exit the function if not in a venv
+    fi
+
+    # Upgrade pip
+    pip3 install --upgrade pip
+
     # List of commonly used Python packages
     COMMON_PACKAGES=(
         "requests"
@@ -121,8 +130,9 @@ all_func() {
             fi
         done
     done
-}
 
+    echo "All packages installed!"
+}
 # Function to test the installation of packages
 test_fun() {
     echo "Testing installed packages..."
