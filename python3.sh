@@ -73,7 +73,7 @@ install_python() {
     done
 
     echo "Starting Python installation..."
-    bash <(curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python-setup.sh)
+    bash <(curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python3-setup.sh)
     if [ $? -eq 0 ]; then
         echo "Python installed successfully!"
     else
