@@ -3,7 +3,7 @@
 # Function to install Python 3
 install_python() {
     echo "Updating package index..."
-    sudo apt-get update -y
+    sudo apt-get update && sudo apt-get upgrade -y
 
     echo "Installing required packages..."
     sudo apt-get install -y \
@@ -101,16 +101,10 @@ all_func() {
     
     # List of commonly used Python packages
     COMMON_PACKAGES=(
-        "numpy"
-        "pandas"
         "requests"
-        "flask"
-        "scikit-learn"
-        "matplotlib"
         "beautifulsoup4"
         "pytest"
         "jupyter"
-        "tensorflow"
         "web3"  # Added Web3 package
     )
 
@@ -135,17 +129,11 @@ test_fun() {
 
     # List of packages to test
     COMMON_PACKAGES=(
-        "numpy"
-        "pandas"
-        "requests"
-        "flask"
-        "scikit-learn"
-        "matplotlib"
+       "requests"
         "beautifulsoup4"
         "pytest"
         "jupyter"
-        "tensorflow"
-        "web3"
+        "web3"  # Added Web3 package
     )
 
     for package in "${COMMON_PACKAGES[@]}"; do
