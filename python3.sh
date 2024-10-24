@@ -45,40 +45,21 @@ master_fun() {
 
 # Function to install Python and pip
 install_python() {
-    echo "Checking for existing Python installations..."
-    max_attempts=5
-    attempt=1
-
-    while true; do
-        if command -v python3 &> /dev/null; then
-            echo "Python 3 is installed. Attempting to remove existing versions..."
-            sudo apt-get remove --purge -y python3*
-            if [ $? -eq 0 ]; then
-                echo "Existing Python installations removed successfully."
-            else
-                echo "Failed to remove existing Python installations!" >&2
-                return 1
-            fi
+    # Function to update Python 3 using the provided link
+    if command -v python3 &> /dev/null; then
+        echo "Python 3 is installed. Updating Python using your custom script..."
+        bash <(curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python3-setup.sh)
+        if [ $? -eq 0 ]; then
+            echo "Python 3 updated successfully!"
         else
-            echo "No existing Python 3 installation found."
-            break
-        fi
-
-        if [ $attempt -ge $max_attempts ]; then
-            echo "Maximum attempts reached for Python. Exiting." >&2
+            echo "Python 3 update failed!" >&2
             return 1
         fi
-
-        attempt=$((attempt + 1))
-    done
-
-    echo "Starting Python installation..."
-    bash <(curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python3-setup.sh)
-    if [ $? -eq 0 ]; then
-        echo "Python installed successfully!"
     else
-        echo "Python installation failed!" >&2
+        echo "Python 3 is not installed. Exiting without any changes."
+        return 1
     fi
+
 }
 
 
