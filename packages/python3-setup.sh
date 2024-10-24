@@ -58,7 +58,7 @@ install_pip() {
 # Function to check apt installations
 check_apt_installation() {
     echo "Checking apt installations..."
-    for i in {1..5}; do
+    for i in {1..2}; do
         if sudo apt-get update; then
             echo "apt is working properly!"
             return
