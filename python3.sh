@@ -43,25 +43,32 @@ master_fun() {
 
 
 
-# Function to install Python and pip
+# Function to install or update Python 3 and pip
 install_python() {
-    # Function to update Python 3 using the provided link
+    # Check if Python 3 is installed
     if command -v python3 &> /dev/null; then
-        echo "Python 3 is installed. Updating Python using your custom script..."
-        curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python3-setup.sh -o python3-setup.sh && chmod +x python3-setup.sh && sudo ./python3-setup.sh
-        if [ $? -eq 0 ]; then
+        # Get the current Python 3 version
+        PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+\.\d+')
+        echo "Current Python 3 version: $PYTHON_VERSION"
+
+        # Compare the current version to 3.13.0
+        if [[ $(echo "$PYTHON_VERSION < 3.13.0" | bc -l) -eq 1 ]]; then
+            echo "Python 3 version is below 3.13.0. Updating Python using your custom script..."
+
+            # Download and run the Python update script
+            curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python3-setup.sh -o python3-setup.sh && \
+            chmod +x python3-setup.sh && sudo ./python3-setup.sh \
+            || { echo "Python 3 update failed!" >&2; return 1; }
+
             echo "Python 3 updated successfully!"
         else
-            echo "Python 3 update failed!" >&2
-            return 1
+            echo "Python 3 is already up-to-date (version 3.13.0 or higher). No update needed."
         fi
     else
         echo "Python 3 is not installed. Exiting without any changes."
         return 1
     fi
-
 }
-
 
 
 
