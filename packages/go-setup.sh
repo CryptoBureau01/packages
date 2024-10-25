@@ -186,9 +186,10 @@ error_fix() {
     echo "Attempting to fix errors..."
     
     install_go
+    fix_go_errors
     install_common_go_packages
     test_common_go_packages
-    fix_go_errors
+
     
 
     # Check if all functions executed successfully
