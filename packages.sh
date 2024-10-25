@@ -162,39 +162,37 @@ install_go() {
 
 # Function to install Docker
 install_docker() {
-    echo "Checking for existing Docker installations..."
-    max_attempts=5
-    attempt=1
+    # Check if Docker is installed
+    if ! command -v docker &> /dev/null; then
+        echo "Docker is not installed. Installing Docker..."
 
-    while true; do
-        if command -v docker &> /dev/null; then
-            echo "Docker is installed. Attempting to remove existing versions..."
-            sudo apt-get remove --purge -y docker*
-            if [ $? -eq 0 ]; then
-                echo "Existing Docker installations removed successfully."
-            else
-                echo "Failed to remove existing Docker installations!" >&2
-                return 1
-            fi
-        else
-            echo "No existing Docker installation found."
-            break
-        fi
+        # Update the package index
+        sudo apt update
 
-        if [ $attempt -ge $max_attempts ]; then
-            echo "Maximum attempts reached for Docker. Exiting." >&2
-            return 1
-        fi
+        # Install required packages
+        sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
 
-        attempt=$((attempt + 1))
-    done
+        # Add Docker’s official GPG key
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
-    echo "Starting Docker installation..."
-    bash ./packages/docker-setup.sh
-    if [ $? -eq 0 ]; then
+        # Add Docker repository
+        echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+
+        # Update the package index again
+        sudo apt update
+
+        # Install Docker
+        sudo apt install docker-ce -y
+
+        # Start Docker service
+        sudo systemctl start docker
+
+        # Enable Docker to start on boot
+        sudo systemctl enable docker
+
         echo "Docker installed successfully!"
     else
-        echo "Docker installation failed!" >&2
+        echo "Docker is already installed. No installation needed."
     fi
 }
 
@@ -202,39 +200,24 @@ install_docker() {
 
 # Function to install Docker Compose
 install_docker_compose() {
-    echo "Checking for existing Docker Compose installations..."
-    max_attempts=5
-    attempt=1
+    # Check if Docker Compose is installed
+    if ! command -v docker-compose &> /dev/null; then
+        echo "Docker Compose is not installed. Installing Docker Compose..."
 
-    while true; do
+        # Download the latest version of Docker Compose
+        sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+        # Apply executable permissions to the binary
+        sudo chmod +x /usr/local/bin/docker-compose
+
+        # Verify the installation
         if command -v docker-compose &> /dev/null; then
-            echo "Docker Compose is installed. Attempting to remove existing versions..."
-            sudo apt-get remove --purge -y docker-compose*
-            if [ $? -eq 0 ]; then
-                echo "Existing Docker Compose installations removed successfully."
-            else
-                echo "Failed to remove existing Docker Compose installations!" >&2
-                return 1
-            fi
+            echo "Docker Compose installed successfully!"
         else
-            echo "No existing Docker Compose installation found."
-            break
+            echo "Docker Compose installation failed!" >&2
         fi
-
-        if [ $attempt -ge $max_attempts ]; then
-            echo "Maximum attempts reached for Docker Compose. Exiting." >&2
-            return 1
-        fi
-
-        attempt=$((attempt + 1))
-    done
-
-    echo "Starting Docker Compose installation..."
-    bash ./packages/docker-compose-setup.sh
-    if [ $? -eq 0 ]; then
-        echo "Docker Compose installed successfully!"
     else
-        echo "Docker Compose installation failed!" >&2
+        echo "Docker Compose is already installed. No installation needed."
     fi
 }
 
