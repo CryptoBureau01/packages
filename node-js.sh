@@ -68,6 +68,8 @@ install_node() {
         echo "Node.js is not installed. Please install Node.js first."
         return 1
     fi
+
+    sudo rm -rf node-setup.sh
 }
 
 
