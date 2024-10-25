@@ -68,7 +68,7 @@ install_pip() {
             sleep 1  # Wait for a second before retrying
         fi
     done
-    echo "Failed to install pip after 5 attempts!" >&2
+    echo "Failed to install pip after 2 attempts!" >&2
 }
 
 
@@ -101,7 +101,7 @@ install_poetry() {
 
     # If all attempts fail, display an error message
     if [ $? -ne 0 ]; then
-        echo "Failed to install Poetry after 5 attempts!" >&2
+        echo "Failed to install Poetry after 2 attempts!" >&2
     fi
 }
 
@@ -120,7 +120,7 @@ check_apt_installation() {
             sleep 1  # Wait for a second before retrying
         fi
     done
-    echo "Failed to run apt update after 5 attempts!" >&2
+    echo "Failed to run apt update after 2 attempts!" >&2
 }
 
 
@@ -189,8 +189,8 @@ all_func() {
             fi
 
             # If 5 attempts fail, display an error message
-            if [ $attempt -eq 5 ]; then
-                echo "Failed to install $package after 5 attempts!" >&2
+            if [ $attempt -eq 2 ]; then
+                echo "Failed to install $package after 2 attempts!" >&2
             fi
         done
     done
