@@ -47,20 +47,28 @@ master_fun() {
 install_node() {
     # Check if Node.js is installed
     if command -v node &> /dev/null; then
-        echo "Node.js is already installed. Updating Node.js using your custom script..."
+        # Get the current version of Node.js
+        NODE_VERSION=$(node -v | grep -oP '\d+\.\d+\.\d+' | head -1)
+        echo "Current Node.js version: $NODE_VERSION"
 
-        # Download and run the Node.js update script
-        curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/node-setup.sh -o node-setup.sh && chmod +x node-setup.sh && sudo ./node-setup.sh \
-        || { echo "Node.js update failed!" >&2; return 1; }
+        # Compare the current version to 23.0.0
+        if [[ $(echo "$NODE_VERSION < 23" | bc -l) -eq 1 ]]; then
+            echo "Node.js version is below 23. Updating Node.js using your custom script..."
 
-        echo "Node.js updated successfully!"
+            # Download and run the Node.js update script
+            curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/node-setup.sh -o node-setup.sh && \
+            chmod +x node-setup.sh && sudo ./node-setup.sh \
+            || { echo "Node.js update failed!" >&2; return 1; }
+
+            echo "Node.js updated successfully!"
+        else
+            echo "Node.js is already up-to-date (version 23 or higher). No update needed."
+        fi
     else
         echo "Node.js is not installed. Please install Node.js first."
         return 1
     fi
 }
-
-
 
 
 
