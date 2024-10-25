@@ -191,8 +191,8 @@ error_fix() {
     echo "Attempting to fix errors..."
     
     install_node_with_nvm_global
-    install_common_node_packages
     fix_node_run_errors
+    install_common_node_packages
     test_node_packages
     
 
