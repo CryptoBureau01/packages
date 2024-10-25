@@ -44,122 +44,118 @@ master_fun() {
 
 
 
-# Function to install Python and pip
+# Function to install or update Python 3 and pip
 install_python() {
-    echo "Checking for existing Python installations..."
-    max_attempts=5
-    attempt=1
+    # Check if Python 3 is installed
+    if command -v python3 &> /dev/null; then
+        # Get the current Python 3 version
+        PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+\.\d+')
+        echo "Current Python 3 version: $PYTHON_VERSION"
 
-    while true; do
-        if command -v python3 &> /dev/null; then
-            echo "Python 3 is installed. Attempting to remove existing versions..."
-            sudo apt-get remove --purge -y python3*
-            if [ $? -eq 0 ]; then
-                echo "Existing Python installations removed successfully."
-            else
-                echo "Failed to remove existing Python installations!" >&2
-                return 1
-            fi
+        # Compare the current version to 3.13.0
+        if [[ $(echo "$PYTHON_VERSION < 3.13.0" | bc -l) -eq 1 ]]; then
+            echo "Python 3 version is below 3.13.0. Updating Python using your custom script..."
+
+            # Download and run the Python update script
+            curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/python3-setup.sh -o python3-setup.sh && \
+            chmod +x python3-setup.sh && sudo ./python3-setup.sh \
+            || { echo "Python 3 update failed!" >&2; return 1; }
+
+            echo "Python 3 updated successfully!"
         else
-            echo "No existing Python 3 installation found."
-            break
+            echo "Python 3 is already up-to-date (version 3.13.0 or higher). No update needed."
         fi
-
-        if [ $attempt -ge $max_attempts ]; then
-            echo "Maximum attempts reached for Python. Exiting." >&2
-            return 1
-        fi
-
-        attempt=$((attempt + 1))
-    done
-
-    echo "Starting Python installation..."
-    bash ./packages/python-setup.sh
-    if [ $? -eq 0 ]; then
-        echo "Python installed successfully!"
     else
-        echo "Python installation failed!" >&2
+        echo "Python 3 is not installed. Exiting without any changes."
+        return 1
     fi
+
+    sudo rm -rf python3-setup.sh
 }
 
 
 
-# Function to install Node.js and npm
+
+# Function to install or update Node.js and NPM
 install_node() {
-    echo "Checking for existing Node.js installations..."
-    max_attempts=5
-    attempt=1
+    # Check if Node.js is installed
+    if command -v node &> /dev/null; then
+        # Get the current version of Node.js
+        NODE_VERSION=$(node -v | grep -oP '\d+\.\d+\.\d+' | head -1)
+        echo "Current Node.js version: $NODE_VERSION"
 
-    while true; do
-        if command -v node &> /dev/null; then
-            echo "Node.js is installed. Attempting to remove existing versions..."
-            sudo apt-get remove --purge -y nodejs*
-            if [ $? -eq 0 ]; then
-                echo "Existing Node.js installations removed successfully."
-            else
-                echo "Failed to remove existing Node.js installations!" >&2
-                return 1
-            fi
+        # Compare the current version to 23.0.0
+        if [[ $(echo "$NODE_VERSION < 23" | bc -l) -eq 1 ]]; then
+            echo "Node.js version is below 23. Updating Node.js using your custom script..."
+
+            # Download and run the Node.js update script
+            curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/node-setup.sh -o node-setup.sh && \
+            chmod +x node-setup.sh && sudo ./node-setup.sh \
+            || { echo "Node.js update failed!" >&2; return 1; }
+
+            echo "Node.js updated successfully!"
         else
-            echo "No existing Node.js installation found."
-            break
+            echo "Node.js is already up-to-date (version 23 or higher). No update needed."
         fi
-
-        if [ $attempt -ge $max_attempts ]; then
-            echo "Maximum attempts reached for Node.js. Exiting." >&2
-            return 1
-        fi
-
-        attempt=$((attempt + 1))
-    done
-
-    echo "Starting Node.js installation..."
-    bash ./packages/node-setup.sh
-    if [ $? -eq 0 ]; then
-        echo "Node.js installed successfully!"
     else
-        echo "Node.js installation failed!" >&2
+        echo "Node.js is not installed. Please install Node.js first."
+        return 1
     fi
+
+    sudo rm -rf node-setup.sh
 }
 
 
 
 # Function to install Rust
 install_rust() {
-    echo "Checking for existing Rust installations..."
-    max_attempts=5
-    attempt=1
+    # Check if Rust is installed
+    if ! command -v rustc &> /dev/null; then
+        echo "Rust is not installed. Installing Rust using your custom script..."
 
-    while true; do
-        if command -v rustc &> /dev/null; then
-            echo "Rust is installed. Attempting to remove existing versions..."
-            sudo apt-get remove --purge -y rust*
-            if [ $? -eq 0 ]; then
-                echo "Existing Rust installations removed successfully."
-            else
-                echo "Failed to remove existing Rust installations!" >&2
-                return 1
-            fi
-        else
-            echo "No existing Rust installation found."
-            break
-        fi
+        # Download and run the Rust installation script
+        curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/rust-setup.sh -o rust-setup.sh && \
+        chmod +x rust-setup.sh && sudo ./rust-setup.sh \
+        || { echo "Rust installation failed!" >&2; return 1; }
 
-        if [ $attempt -ge $max_attempts ]; then
-            echo "Maximum attempts reached for Rust. Exiting." >&2
-            return 1
-        fi
-
-        attempt=$((attempt + 1))
-    done
-
-    echo "Starting Rust installation..."
-    bash ./packages/rust-setup.sh
-    if [ $? -eq 0 ]; then
         echo "Rust installed successfully!"
     else
-        echo "Rust installation failed!" >&2
+        echo "Rust is already installed. No installation needed."
     fi
+
+    sudo rm -rf rust-setup.sh
+}
+
+
+
+
+# Function to install or update Go
+install_go() {
+    # Check if Go is installed
+    if command -v go &> /dev/null; then
+        # Get the current Go version
+        GO_VERSION=$(go version | grep -oP '\d+\.\d+\.\d+')
+        echo "Current Go version: $GO_VERSION"
+
+        # Compare the current version to 1.23.2
+        if [[ $(echo "$GO_VERSION < 1.23.2" | bc -l) -eq 1 ]]; then
+            echo "Go version is below 1.23.2. Updating Go using your custom script..."
+
+            # Download and run the Go update script
+            curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/go-setup.sh -o go-setup.sh && \
+            chmod +x go-setup.sh && sudo ./go-setup.sh \
+            || { echo "Go update failed!" >&2; return 1; }
+
+            echo "Go updated successfully!"
+        else
+            echo "Go is already up-to-date (version 1.23.2 or higher). No update needed."
+        fi
+    else
+        echo "Go is not installed. Exiting without any changes."
+        return 1
+    fi
+
+    sudo rm -rf go-setup.sh
 }
 
 
@@ -252,6 +248,7 @@ main_fun() {
     install_python
     install_node
     install_rust
+    install_go
     install_docker
     install_docker_compose
 
