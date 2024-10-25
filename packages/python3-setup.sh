@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # Function to install Python 3
 install_python() {
     echo "Updating package index..."
@@ -37,12 +38,27 @@ install_python() {
     cd .. || exit
     rm -rf Python-$PYTHON_VERSION*
     echo "Python $PYTHON_VERSION installed successfully!"
+
+    # Install python3-venv
+    echo "Installing python3-venv..."
+    sudo apt install -y python3-venv
+
+    # Add virtual environment path to ~/.bashrc
+    echo "Adding venv path to ~/.bashrc..."
+    echo 'export PATH="/home/user/myenv/bin:$PATH"' >> ~/.bashrc
+
+    # Source ~/.bashrc to apply the changes
+    echo "Applying changes..."
+    source ~/.bashrc
+
+    echo "Setup completed successfully!"
 }
+
 
 # Function to install pip and test installation
 install_pip() {
     echo "Installing pip..."
-    for i in {1..5}; do
+    for i in {1..2}; do
         sudo apt-get install -y python3-pip
         if command -v pip3 &> /dev/null; then
             echo "pip installed successfully!"
@@ -54,6 +70,43 @@ install_pip() {
     done
     echo "Failed to install pip after 5 attempts!" >&2
 }
+
+
+# Function to install Poetry with a retry loop
+install_poetry() {
+    for attempt in {1..2}; do
+        echo "Attempt $attempt to install Poetry..."
+
+        # Download and run the Poetry installer script
+        curl -sSL https://install.python-poetry.org | python3 -
+
+        # Add Poetry to PATH in ~/.bashrc
+        echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+
+        # Apply the PATH changes
+        source ~/.bashrc
+
+        # Check Poetry version to confirm installation
+        poetry --version
+
+        # Check if Poetry installed successfully
+        if [ $? -eq 0 ]; then
+            echo "Poetry installed successfully!"
+            break  # Exit the loop if installation is successful
+        else
+            echo "Poetry installation failed. Retrying... ($attempt)"
+            sleep 2  # Wait before the next attempt
+        fi
+    done
+
+    # If all attempts fail, display an error message
+    if [ $? -ne 0 ]; then
+        echo "Failed to install Poetry after 5 attempts!" >&2
+    fi
+}
+
+
+
 
 # Function to check apt installations
 check_apt_installation() {
@@ -69,6 +122,9 @@ check_apt_installation() {
     done
     echo "Failed to run apt update after 5 attempts!" >&2
 }
+
+
+
 
 # Function to handle common apt errors
 fix_apt_errors() {
@@ -95,7 +151,10 @@ fix_apt_errors() {
     sudo update-command-not-found
 }
 
-# Function to install commonly used Python packages
+
+
+
+# Function to install commonly used Python packages with retry logic
 all_func() {
     echo "Installing commonly used Python packages..."
 
@@ -110,40 +169,48 @@ all_func() {
 
     # List of commonly used Python packages
     COMMON_PACKAGES=(
+        "web3"  # Added Web3 package
+        "virtualenv"
         "requests"
         "beautifulsoup4"
-        "pytest"
-        "jupyter"
-        "web3"  # Added Web3 package
     )
 
-    # Loop through each package and install it, retrying if installation fails
+    # Loop through each package and install it, retrying up to 5 times if installation fails
     for package in "${COMMON_PACKAGES[@]}"; do
-        while true; do
+        for attempt in {1..2}; do
+            echo "Attempt $attempt to install $package..."
             pip3 install "$package"
             if [ $? -eq 0 ]; then
                 echo "$package installed successfully!"
-                break  # Exit the loop if installation was successful
+                break  # Exit the retry loop if installation was successful
             else
-                echo "Failed to install $package! Retrying..."
-                sleep 2  # Wait for a couple of seconds before retrying
+                echo "Failed to install $package. Retrying... ($attempt)"
+                sleep 2  # Wait before the next attempt
+            fi
+
+            # If 5 attempts fail, display an error message
+            if [ $attempt -eq 5 ]; then
+                echo "Failed to install $package after 5 attempts!" >&2
             fi
         done
     done
 
-    echo "All packages installed!"
+    echo "All packages attempted for installation!"
 }
+
+
+
+
 # Function to test the installation of packages
 test_fun() {
     echo "Testing installed packages..."
 
     # List of packages to test
     COMMON_PACKAGES=(
-       "requests"
-        "beautifulsoup4"
-        "pytest"
-        "jupyter"
         "web3"  # Added Web3 package
+        "virtualenv"
+        "requests"
+        "beautifulsoup4"
     )
 
     for package in "${COMMON_PACKAGES[@]}"; do
@@ -161,29 +228,30 @@ test_fun() {
     echo "All packages are working correctly!"
 }
 
-# New function to check and fix errors
-error_fix() {
-    for attempt in {1..5}; do
-        echo "Attempt $attempt to fix errors..."
-        
-        install_pip
-        check_apt_installation
-        fix_apt_errors
-        all_func
-        test_fun
 
-        # Check if all functions executed successfully
-        if [ $? -eq 0 ]; then
-            echo "All functions executed successfully!"
-            break  # Exit the loop if successful
-        else
-            echo "Error occurred in one of the functions. Retrying all functions... ($attempt)"
-            sleep 2  # Wait before the next attempt
-            install_python  # Reinstall Python if there's an error
-        fi
-    done
-    echo "Failed to fix errors after 5 attempts!" >&2
+
+
+# New function to check and fix errors without a loop
+error_fix() {
+    echo "Attempting to fix errors..."
+    
+    install_python
+    install_pip
+    install_poetry
+    check_apt_installation
+    fix_apt_errors
+    all_func
+    test_fun
+
+    # Check if all functions executed successfully
+    if [ $? -eq 0 ]; then
+        echo "All functions executed successfully!"
+    else
+        echo "Error occurred in one of the functions. Attempting to reinstall Python and try again."
+    fi
 }
+
+
 
 # Call the error_fix function
 error_fix
