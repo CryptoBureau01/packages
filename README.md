@@ -18,42 +18,42 @@ ________________________________________________________________________________
 
 # Individual Package Installations
 
-  ## Singal Python3 3.13.0 version Packages :
+  ## Python3 (Version 3.13.0) Packages :
 
   ```
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/python3.sh && chmod +x python3.sh && ./python3.sh
   ```
 
 
-  ## Singal Node.js v23.1.0 version Packages :
+  ## Node.js (Version 23.1.0) Packages :
 
   ```
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/node.sh && chmod +x node.sh && ./node.sh
   ```
 
 
-  ## Singal Go v1.23.2 version Packages :
+  ## Go (Version 1.23.2) Packages :
 
   ```
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/go.sh && chmod +x go.sh && ./go.sh
   ```
 
 
-  ## Singal Rust install Packages :
+  ## Rust install Packages :
 
   ```
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/rust.sh && chmod +x rust.sh && ./rust.sh
   ```
 
 
-  ## Singal Docker install Packages :
+  ## Docker install Packages :
 
   ```
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/docker.sh && chmod +x docker.sh && ./docker.sh
   ```
 
 
-  ## Singal Docker-Compose install Packages :
+  ## Docker-Compose install Packages :
 
   ```
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/docker-compose.sh && chmod +x docker-compose.sh && ./docker-compose.sh
