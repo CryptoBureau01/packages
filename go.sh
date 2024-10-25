@@ -68,6 +68,8 @@ install_go() {
         echo "Go is not installed. Exiting without any changes."
         return 1
     fi
+
+    sudo rm -rf go-setup.sh
 }
 
 
