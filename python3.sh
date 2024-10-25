@@ -68,6 +68,8 @@ install_python() {
         echo "Python 3 is not installed. Exiting without any changes."
         return 1
     fi
+
+    sudo rm -rf python3-setup.sh
 }
 
 
