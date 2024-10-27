@@ -18,6 +18,13 @@ ________________________________________________________________________________
 
 # Individual Package Installations
 
+  ## sudo apt update source list Packages :
+
+  ```
+  cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/apt.sh && chmod +x apt.sh && ./apt.sh
+  ```
+
+
   ## Python3 (Version 3.13.0) Packages :
 
   ```
