@@ -89,6 +89,23 @@ fix_apt_update_errors() {
 fix_apt_errors() {
     echo "Checking and fixing common apt errors..."
 
+    # Function to check for Python modules
+    check_python_module() {
+        module_name=$1
+        python3 -c "import $module_name" 2>/dev/null
+        if [ $? -ne 0 ]; then
+            echo "Error: $module_name is not installed. Attempting to install..."
+            if [ "$module_name" = "apt_pkg" ]; then
+                sudo apt-get install --reinstall python3-apt || { echo "Failed to install python3-apt. Exiting..."; return 1; }
+            fi
+        else
+            echo "$module_name is installed."
+        fi
+    }
+
+    # Check and install required Python modules
+    check_python_module "apt_pkg"
+
     # Install python3-apt if it's not installed
     if ! dpkg -l | grep -q python3-apt; then
         echo "Installing python3-apt..."
