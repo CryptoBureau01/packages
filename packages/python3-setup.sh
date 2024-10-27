@@ -233,15 +233,31 @@ test_fun() {
 
 switch_to_python3_13() {
     echo "Checking installed Python versions..."
-    ls /usr/bin/python3*
+    ls /usr/bin/python3* 2>/dev/null
+    ls /usr/local/bin/python3* 2>/dev/null
+    
+    # Set Python 3.13 path based on common installation directories
+    if [ -f "/usr/local/bin/python3.13" ]; then
+        PYTHON_PATH="/usr/local/bin/python3.13"
+    elif [ -f "/usr/bin/python3.13" ]; then
+        PYTHON_PATH="/usr/bin/python3.13"
+    else
+        echo "Python 3.13 is not installed in /usr/local/bin or /usr/bin."
+        echo "Please install Python 3.13 before running this function."
+        return 1
+    fi
     
     echo "Adding Python 3.13 to alternatives..."
-    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 2
+    sudo update-alternatives --install /usr/bin/python3 python3 "$PYTHON_PATH" 2
     
-    echo "Configuring Python alternatives..."
-    sudo update-alternatives --config python3
+    echo "Setting Python 3.13 as the default version..."
+    sudo update-alternatives --set python3 "$PYTHON_PATH"
     
+    # Confirm the version
+    echo "Default Python version is now set to:"
+    python3 --version
 }
+
 
 
 # New function to check and fix errors without a loop
@@ -273,8 +289,8 @@ error_fix
 # Update and upgrade the system at the end
 echo "Updating and upgrading the system..."
 sudo apt-get update && sudo apt-get upgrade -y
-echo "Checking the active Python version..."
-python3 --version
+echo "Python version Set Globally..."
+switch_to_python3_13
 
 if [ $? -eq 0 ]; then
     echo "System updated and upgraded successfully!"
