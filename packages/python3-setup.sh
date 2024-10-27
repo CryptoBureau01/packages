@@ -133,23 +133,33 @@ fix_apt_errors() {
     # Install python3-apt if it's not installed
     if ! dpkg -l | grep -q python3-apt; then
         echo "Installing python3-apt..."
-        sudo apt-get install -y python3-apt
+        sudo apt-get install -y python3-apt || { echo "Failed to install python3-apt. Exiting..."; return 1; }
     fi
 
-    # Remove and reinstall command-not-found
-    sudo apt remove -y command-not-found
-    sudo apt install -y command-not-found
+    # Check for and reinstall command-not-found
+    if dpkg -l | grep -q command-not-found; then
+        echo "Reinstalling command-not-found..."
+        sudo apt remove -y command-not-found || { echo "Failed to remove command-not-found. Exiting..."; return 1; }
+    fi
+    sudo apt install -y command-not-found || { echo "Failed to install command-not-found. Exiting..."; return 1; }
 
     # Clear apt lists and cache
-    sudo rm -rf /var/lib/apt/lists/*
-    sudo rm -rf /var/cache/apt/archives/*
+    echo "Clearing apt lists and cache..."
+    sudo rm -rf /var/lib/apt/lists/* || { echo "Failed to clear apt lists. Exiting..."; return 1; }
+    sudo rm -rf /var/cache/apt/archives/* || { echo "Failed to clear apt archives. Exiting..."; return 1; }
 
     # Fix broken installs
-    sudo apt --fix-broken install -y
+    echo "Fixing broken installs..."
+    sudo apt --fix-broken install -y || { echo "Failed to fix broken installs. Exiting..."; return 1; }
 
     # Update command-not-found
-    sudo update-command-not-found
+    echo "Updating command-not-found..."
+    sudo update-command-not-found || { echo "Failed to update command-not-found. Exiting..."; return 1; }
+
+    echo "All common apt errors have been checked and fixed."
 }
+
+
 
 
 
@@ -201,32 +211,46 @@ all_func() {
 
 
 
-# Function to test the installation of packages
+# Function to test the installation of packages and reinstall if necessary
 test_fun() {
     echo "Testing installed packages..."
 
-    # List of packages to test
+    # List of packages to test with proper import names
     COMMON_PACKAGES=(
-        "web3"  # Added Web3 package
+        "web3"  # Web3 package
         "virtualenv"
         "requests"
-        "beautifulsoup4"
+        "beautifulsoup4:bs4"  # 'beautifulsoup4' installs as 'bs4'
     )
 
+    # Loop through each package
     for package in "${COMMON_PACKAGES[@]}"; do
-        echo "Testing $package..."
-        python3 -c "import $package" 2>/dev/null
+        pkg_name="${package%%:*}"  # Package name for installation
+        import_name="${package##*:}"  # Import name for testing
+
+        # Test the import
+        echo "Testing $pkg_name..."
+        python3 -c "import $import_name" 2>/dev/null
         if [ $? -eq 0 ]; then
-            echo "$package is working properly!"
+            echo "$pkg_name is working properly!"
         else
-            echo "Error: $package is not working! Reinstalling..."
-            all_func  # Call all_func to reinstall packages
-            return  # Exit after attempting to reinstall
+            echo "Error: $pkg_name is not working! Reinstalling..."
+            pip install --upgrade --force-reinstall "$pkg_name"
+            
+            # Re-test the package after reinstalling
+            python3 -c "import $import_name" 2>/dev/null
+            if [ $? -eq 0 ]; then
+                echo "$pkg_name has been reinstalled and is now working!"
+            else
+                echo "Error: $pkg_name could not be reinstalled. Please check manually."
+                return 1  # Exit if package still fails
+            fi
         fi
     done
 
     echo "All packages are working correctly!"
 }
+
 
 
 
