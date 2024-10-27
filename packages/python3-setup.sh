@@ -231,6 +231,19 @@ test_fun() {
 
 
 
+switch_to_python3_13() {
+    echo "Checking installed Python versions..."
+    ls /usr/bin/python3*
+    
+    echo "Adding Python 3.13 to alternatives..."
+    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 2
+    
+    echo "Configuring Python alternatives..."
+    sudo update-alternatives --config python3
+    
+}
+
+
 # New function to check and fix errors without a loop
 error_fix() {
     echo "Attempting to fix errors..."
@@ -242,6 +255,7 @@ error_fix() {
     fix_apt_errors
     all_func
     test_fun
+    switch_to_python3_13
 
     # Check if all functions executed successfully
     if [ $? -eq 0 ]; then
@@ -259,6 +273,9 @@ error_fix
 # Update and upgrade the system at the end
 echo "Updating and upgrading the system..."
 sudo apt-get update && sudo apt-get upgrade -y
+echo "Checking the active Python version..."
+python3 --version
+
 if [ $? -eq 0 ]; then
     echo "System updated and upgraded successfully!"
 else
