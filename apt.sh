@@ -86,6 +86,8 @@ fix_apt_update_errors() {
 
 
 # Function to handle common apt errors
+#!/bin/bash
+
 fix_apt_errors() {
     echo "Checking and fixing common apt errors..."
 
@@ -103,21 +105,24 @@ fix_apt_errors() {
         fi
     }
 
-    # Check and install required Python modules
+    # Ensure necessary Python modules are present
     check_python_module "apt_pkg"
 
-    # Install python3-apt if it's not installed
+    # Install python3-apt if not present
     if ! dpkg -l | grep -q python3-apt; then
         echo "Installing python3-apt..."
         sudo apt-get install -y python3-apt || { echo "Failed to install python3-apt. Exiting..."; return 1; }
     fi
 
-    # Check for and reinstall command-not-found
-    if dpkg -l | grep -q command-not-found; then
+    # Ensure command-not-found is installed
+    if ! dpkg -l | grep -q command-not-found; then
+        echo "Installing command-not-found..."
+        sudo apt-get install -y command-not-found || { echo "Failed to install command-not-found. Exiting..."; return 1; }
+    else
         echo "Reinstalling command-not-found..."
         sudo apt remove -y command-not-found || { echo "Failed to remove command-not-found. Exiting..."; return 1; }
+        sudo apt install -y command-not-found || { echo "Failed to install command-not-found. Exiting..."; return 1; }
     fi
-    sudo apt install -y command-not-found || { echo "Failed to install command-not-found. Exiting..."; return 1; }
 
     # Clear apt lists and cache
     echo "Clearing apt lists and cache..."
@@ -144,6 +149,10 @@ fix_apt_errors() {
             echo "Error: Unable to lock the administration directory. Another package manager may be running."
             echo "Please ensure that no other apt/dpkg processes are running and try again."
             return 1
+        elif grep -q "E: Problem executing scripts" /var/log/apt/term.log; then
+            echo "Error: Problem executing scripts during APT update. Attempting to fix..."
+            sudo rm -rf /var/lib/command-not-found || { echo "Failed to remove command-not-found. Exiting..."; return 1; }
+            sudo apt install -y command-not-found || { echo "Failed to reinstall command-not-found. Exiting..."; return 1; }
         else
             echo "Encountered an unexpected error. Please check the logs for details."
         fi
@@ -176,6 +185,22 @@ fix_apt_errors() {
 }
 
 
+# Prevent apt errors at startup
+prevent_apt_errors() {
+    echo "Setting up preventive measures for APT..."
+    
+    # Lock APT database
+    sudo dpkg --configure -a || { echo "Failed to configure dpkg. Exiting..."; return 1; }
+    
+    # Avoid concurrent APT operations
+    echo "Creating lock file for APT operations..."
+    sudo touch /var/lib/apt/lists/lock
+    echo "Preventive measures applied."
+}
+
+
+
+
 
 
 
@@ -185,8 +210,10 @@ error_fix() {
     echo "Attempting to fix errors..."
     
     apt_sources_list_update
-    fix_apt_update_errors
+    prevent_apt_errors
     fix_apt_errors
+    fix_apt_update_errors
+    
     
     
 
