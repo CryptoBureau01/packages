@@ -1,7 +1,17 @@
 #!/bin/bash
 
+LOG_FILE="/var/log/apt_fix.log"
 
+# Define log function at the beginning
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> $LOG_FILE
+}
 
+error_exit() {
+    log "$1"
+    echo "$1 Exiting..."
+    exit 1
+}
 
 # Function to update the apt sources list
 apt_sources_list_update() {
@@ -32,9 +42,6 @@ EOL' || { echo "Failed to create new sources list. Exiting..."; return 1; }
     echo "Apt sources list updated successfully."
 }
 
-
-
-
 # Function to handle common apt update errors
 fix_apt_update_errors() {
     echo "Running sudo apt update..."
@@ -46,21 +53,21 @@ fix_apt_update_errors() {
 
         # Check for common errors
         if grep -q "Could not resolve" /var/log/apt/term.log; then
-            echo "Error: Could not resolve package repository. Check your internet connection or the sources list."
+            log "Error: Could not resolve package repository. Check your internet connection or the sources list."
             echo "Attempting to fix DNS resolution..."
             sudo apt-get install --reinstall resolvconf
         elif grep -q "E: Unable to locate package" /var/log/apt/term.log; then
-            echo "Error: Unable to locate package. This may be due to an incorrect sources list."
+            log "Error: Unable to locate package. This may be due to an incorrect sources list."
             apt_sources_list_update
         elif grep -q "E: Package '.*' has no installation candidate" /var/log/apt/term.log; then
-            echo "Error: Package has no installation candidate. This may indicate a missing repository."
+            log "Error: Package has no installation candidate. This may indicate a missing repository."
             echo "Updating the sources list..."
             apt_sources_list_update
         elif grep -q "E: Unable to lock the administration directory" /var/log/apt/term.log; then
-            echo "Error: Unable to lock the administration directory. Another package manager may be running."
+            log "Error: Unable to lock the administration directory. Another package manager may be running."
             echo "Please ensure that no other apt/dpkg processes are running and try again."
         else
-            echo "Encountered an unexpected error. Please check the logs for details."
+            log "Encountered an unexpected error. Please check the logs for details."
         fi
 
         # Attempt to fix broken packages
@@ -80,10 +87,6 @@ fix_apt_update_errors() {
     fi
 }
 
-
-
-
-
 fix_python_apt_module() {
     log "Checking for Python module 'apt_pkg'..."
     python3 -c "import apt_pkg" 2>/dev/null
@@ -95,8 +98,6 @@ fix_python_apt_module() {
         log "'apt_pkg' module is present."
     fi
 }
-
-
 
 fix_apt_errors() {
     log "Checking and fixing common apt errors..."
@@ -143,10 +144,9 @@ fix_apt_errors() {
     log "All common apt errors have been checked and fixed."
 }
 
-
 prevent_apt_errors() {
     log "Setting up preventive measures for APT..."
-    
+
     sudo dpkg --configure -a || error_exit "Failed to configure dpkg."
     
     log "Creating lock file for APT operations..."
@@ -154,24 +154,14 @@ prevent_apt_errors() {
     log "Preventive measures applied."
 }
 
-
-
-
-
-
-
-
 # New function to check and fix errors without a loop
 error_fix() {
     echo "Attempting to fix errors..."
-    
+
     apt_sources_list_update
     prevent_apt_errors
     fix_apt_errors
     fix_apt_update_errors
-    
-    
-    
 
     # Check if all functions executed successfully
     if [ $? -eq 0 ]; then
@@ -180,8 +170,6 @@ error_fix() {
         echo "Error occurred in one of the functions. Attempting to reinstall Rust and try again."
     fi
 }
-
-
 
 # Call the error_fix function
 error_fix
@@ -194,5 +182,3 @@ if [ $? -eq 0 ]; then
 else
     echo "Failed to update and upgrade the system!" >&2
 fi
-
-
