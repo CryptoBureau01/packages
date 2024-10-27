@@ -84,118 +84,74 @@ fix_apt_update_errors() {
 
 
 
-
-# Function to handle common apt errors
-#!/bin/bash
-
-fix_apt_errors() {
-    echo "Checking and fixing common apt errors..."
-
-    # Function to check for Python modules
-    check_python_module() {
-        module_name=$1
-        python3 -c "import $module_name" 2>/dev/null
-        if [ $? -ne 0 ]; then
-            echo "Error: $module_name is not installed. Attempting to install..."
-            if [ "$module_name" = "apt_pkg" ]; then
-                sudo apt-get install --reinstall python3-apt || { echo "Failed to install python3-apt. Exiting..."; return 1; }
-            fi
-        else
-            echo "$module_name is installed."
-        fi
-    }
-
-    # Ensure necessary Python modules are present
-    check_python_module "apt_pkg"
-
-    # Install python3-apt if not present
-    if ! dpkg -l | grep -q python3-apt; then
-        echo "Installing python3-apt..."
-        sudo apt-get install -y python3-apt || { echo "Failed to install python3-apt. Exiting..."; return 1; }
-    fi
-
-    # Ensure command-not-found is installed
-    if ! dpkg -l | grep -q command-not-found; then
-        echo "Installing command-not-found..."
-        sudo apt-get install -y command-not-found || { echo "Failed to install command-not-found. Exiting..."; return 1; }
+fix_python_apt_module() {
+    log "Checking for Python module 'apt_pkg'..."
+    python3 -c "import apt_pkg" 2>/dev/null
+    if [ $? -ne 0 ]; then
+        log "'apt_pkg' module not found. Attempting to reinstall 'python3-apt'..."
+        sudo apt-get install --reinstall python3-apt || error_exit "Failed to reinstall python3-apt."
+        log "'python3-apt' reinstalled successfully."
     else
-        echo "Reinstalling command-not-found..."
-        sudo apt remove -y command-not-found || { echo "Failed to remove command-not-found. Exiting..."; return 1; }
-        sudo apt install -y command-not-found || { echo "Failed to install command-not-found. Exiting..."; return 1; }
+        log "'apt_pkg' module is present."
     fi
-
-    # Clear apt lists and cache
-    echo "Clearing apt lists and cache..."
-    sudo rm -rf /var/lib/apt/lists/* || { echo "Failed to clear apt lists. Exiting..."; return 1; }
-    sudo rm -rf /var/cache/apt/archives/* || { echo "Failed to clear apt archives. Exiting..."; return 1; }
-
-    # Attempt to update APT
-    echo "Running sudo apt update..."
-    if ! sudo apt update; then
-        echo "APT update encountered errors. Analyzing..."
-
-        # Check for common errors in the update process
-        if grep -q "Could not resolve" /var/log/apt/term.log; then
-            echo "Error: Could not resolve package repository. Check your internet connection or the sources list."
-            echo "Attempting to fix DNS resolution..."
-            sudo apt-get install --reinstall resolvconf || { echo "Failed to fix DNS issues. Exiting..."; return 1; }
-        elif grep -q "E: Unable to locate package" /var/log/apt/term.log; then
-            echo "Error: Unable to locate package. This may be due to an incorrect sources list."
-            apt_sources_list_update || { echo "Failed to update sources list. Exiting..."; return 1; }
-        elif grep -q "E: Package '.*' has no installation candidate" /var/log/apt/term.log; then
-            echo "Error: Package has no installation candidate. This may indicate a missing repository."
-            apt_sources_list_update || { echo "Failed to update sources list. Exiting..."; return 1; }
-        elif grep -q "E: Unable to lock the administration directory" /var/log/apt/term.log; then
-            echo "Error: Unable to lock the administration directory. Another package manager may be running."
-            echo "Please ensure that no other apt/dpkg processes are running and try again."
-            return 1
-        elif grep -q "E: Problem executing scripts" /var/log/apt/term.log; then
-            echo "Error: Problem executing scripts during APT update. Attempting to fix..."
-            sudo rm -rf /var/lib/command-not-found || { echo "Failed to remove command-not-found. Exiting..."; return 1; }
-            sudo apt install -y command-not-found || { echo "Failed to reinstall command-not-found. Exiting..."; return 1; }
-        else
-            echo "Encountered an unexpected error. Please check the logs for details."
-        fi
-
-        # Attempt to fix broken packages
-        echo "Attempting to fix broken packages..."
-        sudo apt --fix-broken install -y || { echo "Failed to fix broken installs. Exiting..."; return 1; }
-        
-        # Clean up
-        echo "Attempting to clean up..."
-        sudo apt-get autoremove -y || { echo "Failed to autoremove packages. Exiting..."; return 1; }
-        sudo apt-get clean || { echo "Failed to clean apt cache. Exiting..."; return 1; }
-
-        # Retry the update
-        echo "Retrying sudo apt update..."
-        if ! sudo apt update; then
-            echo "Failed to resolve errors after retrying."
-        else
-            echo "APT update completed successfully after fixing errors."
-        fi
-    else
-        echo "APT update completed successfully."
-    fi
-
-    # Update command-not-found
-    echo "Updating command-not-found..."
-    sudo update-command-not-found || { echo "Failed to update command-not-found. Exiting..."; return 1; }
-
-    echo "All common apt errors have been checked and fixed."
 }
 
 
-# Prevent apt errors at startup
+
+fix_apt_errors() {
+    log "Checking and fixing common apt errors..."
+    
+    # Check and fix python3-apt module
+    fix_python_apt_module
+
+    # Install or reinstall command-not-found
+    if ! dpkg -l | grep -q command-not-found; then
+        log "Installing command-not-found..."
+        sudo apt-get install -y command-not-found || error_exit "Failed to install command-not-found."
+    else
+        log "Reinstalling command-not-found..."
+        sudo apt remove -y command-not-found || error_exit "Failed to remove command-not-found."
+        sudo apt install -y command-not-found || error_exit "Failed to install command-not-found."
+    fi
+
+    # Clear apt lists and cache
+    log "Clearing apt lists and cache..."
+    sudo rm -rf /var/lib/apt/lists/* || error_exit "Failed to clear apt lists."
+    sudo rm -rf /var/cache/apt/archives/* || error_exit "Failed to clear apt archives."
+
+    # Attempt apt update
+    log "Running sudo apt update..."
+    if ! sudo apt update; then
+        log "APT update encountered errors. Analyzing..."
+        log "Attempting to fix broken packages..."
+        sudo apt --fix-broken install -y || error_exit "Failed to fix broken installs."
+        log "Retrying sudo apt update..."
+        
+        if ! sudo apt update; then
+            log "Failed to resolve errors after retrying."
+        else
+            log "APT update completed successfully after fixing errors."
+        fi
+    else
+        log "APT update completed successfully."
+    fi
+
+    # Update command-not-found
+    log "Updating command-not-found..."
+    sudo update-command-not-found || error_exit "Failed to update command-not-found."
+
+    log "All common apt errors have been checked and fixed."
+}
+
+
 prevent_apt_errors() {
-    echo "Setting up preventive measures for APT..."
+    log "Setting up preventive measures for APT..."
     
-    # Lock APT database
-    sudo dpkg --configure -a || { echo "Failed to configure dpkg. Exiting..."; return 1; }
+    sudo dpkg --configure -a || error_exit "Failed to configure dpkg."
     
-    # Avoid concurrent APT operations
-    echo "Creating lock file for APT operations..."
+    log "Creating lock file for APT operations..."
     sudo touch /var/lib/apt/lists/lock
-    echo "Preventive measures applied."
+    log "Preventive measures applied."
 }
 
 
