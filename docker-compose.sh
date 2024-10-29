@@ -46,26 +46,51 @@ master_fun() {
 # Function to install Docker Compose
 install_docker_compose() {
     # Check if Docker Compose is installed
-    if ! command -v docker-compose &> /dev/null; then
+    if command -v docker-compose &> /dev/null; then
+        # Get the current version
+        current_version=$(docker-compose --version | awk '{print $3}' | sed 's/,//')
+        
+        # Compare the version
+        if [ "$(printf '%s\n' "$current_version" "v2.20.2" | sort -V | head -n1)" != "v2.20.2" ]; then
+            echo "Current Docker Compose version ($current_version) is less than v2.20.2. Updating..."
+            
+            # Remove old versions
+            sudo rm /usr/bin/docker-compose
+            sudo rm /usr/local/bin/docker-compose
+            
+            # Download the new version
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            
+            # Apply executable permissions
+            sudo chmod +x /usr/local/bin/docker-compose
+            
+            echo "Docker Compose updated successfully!"
+        else
+            echo "Docker Compose is already up to date (version: $current_version)."
+        fi
+    else
         echo "Docker Compose is not installed. Installing Docker Compose..."
-
+        
         # Download the latest version of Docker Compose
         sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-
+        
         # Apply executable permissions to the binary
         sudo chmod +x /usr/local/bin/docker-compose
-
+        
         # Verify the installation
         if command -v docker-compose &> /dev/null; then
             echo "Docker Compose installed successfully!"
         else
             echo "Docker Compose installation failed!" >&2
         fi
-    else
-        echo "Docker Compose is already installed. No installation needed."
     fi
-}
 
+    # Clear the command hash
+    hash -r
+    
+    # Show the version
+    docker-compose --version
+}
 
 
 # Main function to monitor all installations
