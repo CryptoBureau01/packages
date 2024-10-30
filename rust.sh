@@ -43,24 +43,37 @@ master_fun() {
 
 
 
-# Function to install Rust
+# Function to install or update Rust
 install_rust() {
-    # Check if Rust is installed
-    if ! command -v rustc &> /dev/null; then
-        echo "Rust is not installed. Installing Rust using your custom script..."
+    # Required Rust version
+    required_version="1.81.0"
 
-        # Download and run the Rust installation script
-        curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/rust-setup.sh -o rust-setup.sh && \
-        chmod +x rust-setup.sh && sudo ./rust-setup.sh \
-        || { echo "Rust installation failed!" >&2; return 1; }
+    # Check if Rust is installed and get the current version
+    if command -v rustc &> /dev/null; then
+        current_version=$(rustc --version | awk '{print $2}')
 
-        echo "Rust installed successfully!"
+        # Compare current version with required version
+        if [[ "$current_version" == "$required_version" || "$current_version" > "$required_version" ]]; then
+            echo "Rust is already up-to-date (version $current_version). No installation needed."
+            return 0
+        else
+            echo "An older version of Rust ($current_version) is installed. Updating Rust..."
+        fi
     else
-        echo "Rust is already installed. No installation needed."
+        echo "Rust is not installed. Installing Rust using your custom script..."
     fi
 
+    # Download and run the Rust installation script
+    curl -s https://raw.githubusercontent.com/CryptoBureau01/packages/main/packages/rust-setup.sh -o rust-setup.sh && \
+    chmod +x rust-setup.sh && sudo ./rust-setup.sh \
+    || { echo "Rust installation failed!" >&2; return 1; }
+
+    echo "Rust installed successfully!"
+    
+    # Clean up installation script
     sudo rm -rf rust-setup.sh
 }
+
 
 
 
