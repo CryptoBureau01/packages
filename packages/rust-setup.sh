@@ -48,100 +48,6 @@ install_rust() {
 
 
 
-# Function to install commonly used Rust packages
-install_common_rust_packages() {
-    echo "Installing commonly used Rust packages..."
-
-    # Check if cargo is available
-    if ! command -v cargo &> /dev/null; then
-        echo "Cargo is not available. Please install Rust first." >&2
-        return 1
-    fi
-
-    # List of commonly used Rust packages
-    COMMON_RUST_PACKAGES=(
-        "serde"           # Serialization/deserialization library
-        "tokio"           # Asynchronous runtime
-        "rand"            # Random number generator library
-        "reqwest"         # HTTP client
-        "async-std"       # Asynchronous standard library
-        "clap"            # Command-line argument parsing
-        "actix-web"       # Web framework
-        "diesel"          # ORM and query builder for SQL databases
-        "openssl"         # Cryptographic library
-        "hyper"           # HTTP library
-    )
-
-    # Loop through each package and install it with retries if needed
-    for package in "${COMMON_RUST_PACKAGES[@]}"; do
-        for attempt in {1..2}; do
-            cargo install "$package"
-            if [ $? -eq 0 ]; then
-                echo "$package installed successfully!"
-                break
-            else
-                echo "Failed to install $package on attempt $attempt. Retrying..."
-                sleep 2  # Wait before retrying
-            fi
-        done
-
-        # Final check if package was installed
-        if ! cargo install "$package" &> /dev/null; then
-            echo "Failed to install $package after multiple attempts." >&2
-        fi
-    done
-
-    echo "All common Rust packages have been installed!"
-}
-
-
-
-
-
-# Function to test commonly used Rust packages
-test_rust_packages() {
-    echo "Testing commonly used Rust packages..."
-
-    # List of test commands for each package
-    declare -A PACKAGE_TESTS=(
-        ["serde"]="cargo test serde"               # Testing serde functionality
-        ["tokio"]="cargo test tokio"               # Testing tokio async runtime
-        ["rand"]="cargo test rand"                 # Testing random number generator
-        ["reqwest"]="cargo test reqwest"           # Testing HTTP client
-        ["async-std"]="cargo test async-std"       # Testing async-std runtime
-        ["clap"]="cargo test clap"                 # Testing command-line parsing
-        ["actix-web"]="cargo test actix-web"       # Testing web framework
-        ["diesel"]="cargo test diesel"             # Testing ORM library
-        ["openssl"]="cargo test openssl"           # Testing cryptographic library
-        ["hyper"]="cargo test hyper"               # Testing HTTP library
-    )
-
-    # Loop through each package and run its test command
-    for package in "${!PACKAGE_TESTS[@]}"; do
-        echo "Testing $package..."
-        
-        for attempt in {1..2}; do
-            ${PACKAGE_TESTS[$package]}
-            if [ $? -eq 0 ]; then
-                echo "$package test passed!"
-                break
-            else
-                echo "Failed to test $package on attempt $attempt. Retrying..."
-                sleep 2  # Wait before retrying
-            fi
-        done
-
-        # Final check if package test failed after retries
-        if ! ${PACKAGE_TESTS[$package]} &> /dev/null; then
-            echo "Failed to test $package after multiple attempts." >&2
-        fi
-    done
-
-    echo "All Rust package tests complete!"
-}
-
-
-
 
 # Function to fix common Rust system errors
 fix_rust_errors() {
@@ -209,8 +115,7 @@ error_fix() {
     
     install_rust
     fix_rust_errors
-    install_common_rust_packages
-    test_rust_packages
+    
     
 
     # Check if all functions executed successfully
