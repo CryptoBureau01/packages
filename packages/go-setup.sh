@@ -36,86 +36,6 @@ install_go() {
 }
 
 
-# Function to install common Go packages
-install_common_go_packages() {
-    echo "Installing commonly used Go packages..."
-
-    # Check if Go is installed
-    if ! command -v go &> /dev/null; then
-        echo "Go is not installed. Please install Go first."
-        return 1
-    fi
-
-    # List of commonly used Go packages (replace or add as needed)
-    COMMON_GO_PACKAGES=(
-        "github.com/go-sql-driver/mysql@latest"        # MySQL driver
-        "github.com/gin-gonic/gin@latest"              # HTTP web framework
-        "github.com/sirupsen/logrus@latest"            # Logging library
-        "golang.org/x/tools/cmd/godoc@latest"          # Documentation tool
-        "golang.org/x/lint/golint@latest"              # Linter
-        "golang.org/x/tools/gopls@latest"              # Language server for Go
-        "github.com/stretchr/testify@latest"           # Testing toolkit
-        "google.golang.org/grpc@latest"                # gRPC framework
-        "github.com/spf13/cobra@latest"                # CLI framework
-        "github.com/ethereum/go-ethereum@latest"       # Ethereum API library (Web3 for Go)
-    )
-
-    # Loop through each package and install it
-    for package in "${COMMON_GO_PACKAGES[@]}"; do
-        echo "Installing $package..."
-        go install "$package"
-        if [ $? -eq 0 ]; then
-            echo "$package installed successfully!"
-        else
-            echo "Failed to install $package! Please check for errors." >&2
-            return 1
-        fi
-    done
-
-    echo "All Go packages installed successfully!"
-}
-
-
-# Function to test commonly used Go packages
-test_common_go_packages() {
-    echo "Testing installed Go packages..."
-
-    # Check if Go is installed
-    if ! command -v go &> /dev/null; then
-        echo "Go is not installed. Please install Go first."
-        return 1
-    fi
-
-    # Dictionary of Go packages with test commands or versions
-    declare -A GO_PACKAGE_TESTS=(
-        ["mysql"]="go list github.com/go-sql-driver/mysql"
-        ["gin"]="go list github.com/gin-gonic/gin"
-        ["logrus"]="go list github.com/sirupsen/logrus"
-        ["godoc"]="command -v godoc"
-        ["golint"]="command -v golint"
-        ["gopls"]="command -v gopls"
-        ["testify"]="go list github.com/stretchr/testify"
-        ["grpc"]="go list google.golang.org/grpc"
-        ["cobra"]="go list github.com/spf13/cobra"
-        ["go-ethereum"]="go list github.com/ethereum/go-ethereum"
-    )
-
-    # Loop through each package and run the test command
-    for package in "${!GO_PACKAGE_TESTS[@]}"; do
-        echo "Testing $package..."
-        eval "${GO_PACKAGE_TESTS[$package]}"
-        if [ $? -eq 0 ]; then
-            echo "$package is installed and working correctly!"
-        else
-            echo "$package failed to load or is not installed correctly." >&2
-            return 1
-        fi
-    done
-
-    echo "All Go packages are tested successfully!"
-}
-
-
 # Function to detect and fix common Go-related issues
 fix_go_errors() {
     echo "Checking for common Go errors and attempting to fix them..."
@@ -187,8 +107,6 @@ error_fix() {
     
     install_go
     fix_go_errors
-    install_common_go_packages
-    test_common_go_packages
 
     
 
