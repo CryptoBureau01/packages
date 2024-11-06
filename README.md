@@ -18,12 +18,23 @@ ________________________________________________________________________________
 
 # Individual Package Installations
 
+____________________________________________________________________________________________________________________
+
   ## sudo apt update source list Packages :
 
   ```
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/apt.sh && chmod +x apt.sh && ./apt.sh
   ```
 
+____________________________________________________________________________________________________________________
+
+  ## Python3.10 (Version 3.10.0) Packages :
+
+  ```
+  cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/python3.10.sh && chmod +x python3.10.sh && ./python3.10.sh
+  ```
+
+____________________________________________________________________________________________________________________
 
   ## Python3 (Version 3.13.0) Packages :
 
@@ -31,6 +42,7 @@ ________________________________________________________________________________
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/python3.sh && chmod +x python3.sh && ./python3.sh
   ```
 
+____________________________________________________________________________________________________________________
 
   ## Node.js (Version 23.1.0) Packages :
 
@@ -38,6 +50,7 @@ ________________________________________________________________________________
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/node.sh && chmod +x node.sh && ./node.sh
   ```
 
+____________________________________________________________________________________________________________________
 
   ## Go (Version 1.23.2) Packages :
 
@@ -45,6 +58,7 @@ ________________________________________________________________________________
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/go.sh && chmod +x go.sh && ./go.sh
   ```
 
+____________________________________________________________________________________________________________________
 
   ## Rust install Packages :
 
@@ -52,6 +66,7 @@ ________________________________________________________________________________
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/rust.sh && chmod +x rust.sh && ./rust.sh
   ```
 
+____________________________________________________________________________________________________________________
 
   ## Docker install Packages :
 
@@ -59,6 +74,7 @@ ________________________________________________________________________________
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/docker.sh && chmod +x docker.sh && ./docker.sh
   ```
 
+____________________________________________________________________________________________________________________
 
   ## Docker-Compose install Packages :
 
