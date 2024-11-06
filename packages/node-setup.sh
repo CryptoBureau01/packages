@@ -62,16 +62,8 @@ install_common_node_packages() {
 
     # List of commonly used global Node.js packages
     COMMON_NODE_PACKAGES=(
-        "web3"              # Ethereum JavaScript API
-        "express"           # Web framework for Node.js
-        "nodemon"           # Automatically restarts the server on file changes
-        "pm2"               # Process manager for Node.js
-        "eslint"            # JavaScript and Node.js linting utility
-        "jest"              # Testing framework for JavaScript and Node.js
-        "typescript"        # TypeScript support for Node.js
-        "webpack"           # Module bundler for JavaScript applications
-        "create-react-app"  # Tool to create React applications
-        "yarn"              # Package manager for JavaScript projects
+        "web3"           
+        "yarn"           
     )
 
     # Loop through each package and install it globally with retry logic
@@ -91,39 +83,6 @@ install_common_node_packages() {
     done
 
     echo "All packages attempted to install!"
-}
-
-
-
-# Function to test installed Node.js packages
-test_node_packages() {
-    echo "Testing installed Node.js packages..."
-
-    # List of commonly used global Node.js packages to test
-    COMMON_NODE_PACKAGES=(
-        "express"
-        "nodemon"
-        "pm2"
-        "eslint"
-        "jest"
-        "typescript"
-        "webpack"
-        "create-react-app"
-        "yarn"
-        "web3"
-    )
-
-    # Loop through each package and test it
-    for package in "${COMMON_NODE_PACKAGES[@]}"; do
-        if command -v "$package" &> /dev/null; then
-            echo "$package is installed. Testing version..."
-            "$package" --version
-        else
-            echo "$package is not installed."
-        fi
-    done
-
-    echo "Testing completed!"
 }
 
 
@@ -193,7 +152,6 @@ error_fix() {
     install_node_with_nvm_global
     fix_node_run_errors
     install_common_node_packages
-    test_node_packages
     
 
     # Check if all functions executed successfully
