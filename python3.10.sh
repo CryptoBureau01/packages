@@ -62,15 +62,15 @@ install_python() {
     echo "Verifying Python 3.10 installation..."
     python3.10 --version
 
-    # Optional: Set Python 3.10 as the default python3
-    read -p "Do you want to set Python 3.10 as the default python3? (y/n): " set_default
-    if [[ $set_default == "y" ]]; then
-        echo "Setting Python 3.10 as the default python3..."
-        sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
-        echo "Python 3.10 set as default."
-    else
-        echo "Python 3.10 installed, but not set as default."
-    fi
+    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+    sudo update-alternatives --set python3 /usr/bin/python3.10
+
+    sudo apt install python3.10-dev
+    sudo apt install python3.10-distutils
+    sudo apt install build-essential
+    python3.11 -m pip install virtualenv
+    pip install -r requirements.txt 
+
 
     # Clean up by removing the script file if it exists
     [[ -f "python3.10.sh" ]] && sudo rm -rf python3.10.sh
