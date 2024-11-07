@@ -69,7 +69,6 @@ install_python() {
     sudo apt install python3.11-distutils
     sudo apt install build-essential
     python3.11 -m pip install virtualenv
-    pip install -r requirements.txt 
 
     # Clean up by removing the script file if it exists
     [[ -f "python3.11.sh" ]] && sudo rm -rf python3.11.sh
