@@ -62,15 +62,15 @@ install_python() {
     echo "Verifying Python 3.12 installation..."
     python3.12 --version
 
-    # Optional: Set Python 3.12 as the default python3
-    read -p "Do you want to set Python 3.12 as the default python3? (y/n): " set_default
-    if [[ $set_default == "y" ]]; then
-        echo "Setting Python 3.12 as the default python3..."
-        sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
-        echo "Python 3.12 set as default."
-    else
-        echo "Python 3.12 installed, but not set as default."
-    fi
+    sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+    sudo update-alternatives --set python3 /usr/bin/python3.12
+
+    sudo apt install python3.12-dev
+    sudo apt install python3.12-distutils
+    sudo apt install build-essential
+    python3.11 -m pip install virtualenv
+    pip install -r requirements.txt 
+
 
     # Clean up by removing the script file if it exists
     [[ -f "python3.12.sh" ]] && sudo rm -rf python3.12.sh
