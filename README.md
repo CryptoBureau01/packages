@@ -39,7 +39,7 @@ ________________________________________________________________________________
   ## Python3 (Version 3.13.0) Packages :
 
   ```
-  cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/python3.sh && chmod +x python3.sh && ./python3.sh
+  cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/python3.13.sh && chmod +x python3.13.sh && ./python3.13.sh
   ```
 
 ____________________________________________________________________________________________________________________
