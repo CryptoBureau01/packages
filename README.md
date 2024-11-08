@@ -61,7 +61,7 @@ ________________________________________________________________________________
 
 ____________________________________________________________________________________________________________________
 
-  ## Node.js (Version 23.1.0) Packages :
+  ## Node.js (Version 20 ) Packages :
 
   ```
   cd $HOME && wget https://raw.githubusercontent.com/CryptoBureau01/packages/main/node.sh && chmod +x node.sh && ./node.sh
