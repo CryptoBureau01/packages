@@ -27,8 +27,10 @@ install_node_with_nvm_global() {
     echo "NVM installed successfully!"
 
     # Install Node.js version 23 globally
-    echo "Installing Node.js version 23 using NVM..."
-    nvm install 23
+    echo "Installing Node.js version 20 using NVM..."
+    nvm install 20
+    nvm use 20
+    nvm alias default 20
 
     # Verify Node.js and npm installation
     if command -v node &> /dev/null && command -v npm &> /dev/null; then
