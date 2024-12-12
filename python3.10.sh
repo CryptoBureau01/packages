@@ -47,28 +47,44 @@ install_python() {
     # Update and install necessary prerequisites
     echo "Updating package list and installing prerequisites..."
     sudo apt update
+    print_info "Please Wait ..."
+    sleep 1
     sudo apt install -y software-properties-common
 
     # Add deadsnakes PPA (a reliable source for Python packages)
     echo "Adding deadsnakes PPA for Python packages..."
     sudo add-apt-repository -y ppa:deadsnakes/ppa
+    print_info "Please Wait ..."
+    sleep 1
     sudo apt update
 
     # Install Python 3.10
     echo "Installing Python 3.10..."
     sudo apt install -y python3.10
 
+    print_info "Please Wait ..."
+    sleep 1
     # Verify installation
     echo "Verifying Python 3.10 installation..."
     python3.10 --version
 
+    print_info "Please Wait ..."
+    sleep 1
     sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+    print_info "Please Wait ..."
+    sleep 1
     sudo update-alternatives --set python3 /usr/bin/python3.10
 
+    print_info "Please Wait ..."
+    sleep 1
     sudo apt install python3.10-dev
     sudo apt install python3.10-distutils
+    print_info "Please Wait ..."
+    sleep 1
     sudo apt install build-essential
     python3.11 -m pip install virtualenv
+    print_info "Please Wait ..."
+    sleep 1
     pip install -r requirements.txt 
 
 
